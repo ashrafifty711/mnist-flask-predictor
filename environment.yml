@@ -1,0 +1,11 @@
+name: mnist_flask
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy
+  - flask
+  - pillow
+  - pip   # ensures pip is available for packages not on conda
+  - pip:
+      - onnxruntime

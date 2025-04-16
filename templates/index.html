@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MNIST Digit Predictor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- CSS styling -->
+<style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #8EC5FC;
+      background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 100%);
+
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    #upload-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="file"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #image-preview {
+      text-align: center;
+      margin: 20px 0;
+    }
+    #image-preview img {
+      max-width: 200px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+    }
+    #result {
+      text-align: center;
+      font-size: 1.2em;
+      margin: 20px 0;
+      color: #333;
+    }
+    #chart-canvas {
+      max-width: 100%;
+      margin: 20px auto;
+    }
+    #sample-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .sample-img {
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      transition: transform 0.2s;
+    }
+    .sample-img:hover {
+      transform: scale(1.1);
+      border-color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MNIST Digit Predictor</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+      <input type="file" id="file-input" name="file" accept="image/*">
+      <button type="button" id="predict-btn">Predict</button>
+    </form>
+    
+    <!-- Preview area for uploaded image -->
+    <div id="image-preview"></div>
+    <!-- This will display the predicted digit-->
+    <div id="result"></div>
+    <!-- Canvas for Chart.js bar plot -->
+    <canvas id="chart-canvas" width="300" height="150" style="display:none;"></canvas>
+    
+    <!-- Sample MNIST Images for Selection -->
+    <h2>Sample MNIST Digits</h2>
+    <div id="sample-images">
+      <img src="/static/samples/0.png" alt="Digit 0" class="sample-img">
+      <img src="/static/samples/1.png" alt="Digit 1" class="sample-img">
+      <img src="/static/samples/2.png" alt="Digit 2" class="sample-img">
+      <img src="/static/samples/3.png" alt="Digit 3" class="sample-img">
+      <img src="/static/samples/4.png" alt="Digit 4" class="sample-img">
+      <img src="/static/samples/5.png" alt="Digit 5" class="sample-img">
+      <img src="/static/samples/6.png" alt="Digit 6" class="sample-img">
+      <img src="/static/samples/7.png" alt="Digit 7" class="sample-img">
+      <img src="/static/samples/8.png" alt="Digit 8" class="sample-img">
+      <img src="/static/samples/9.png" alt="Digit 9" class="sample-img">
+    </div>
+  </div>
+
+  <script>
+    // Function to predict the digit using a File object
+    function predictImage(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        // Displaying the predicted result
+        document.getElementById('result').innerHTML = 'Predicted Digit: <strong>' + data.predicted_digit + '</strong>';
+        
+        // Preparing the data for the bar chart showing probabilities
+        const ctx = document.getElementById('chart-canvas').getContext('2d');
+        document.getElementById('chart-canvas').style.display = 'block';
+        const chartData = {
+          labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+          datasets: [{
+            label: 'Probability',
+            data: data.confidence,
+            backgroundColor: 'rgba(0, 123, 255, 0.5)'
+          }]
+        };
+        // This destroys any previous chart instance if it exists
+        if (window.myChart) {
+          window.myChart.destroy();
+        }
+        window.myChart = new Chart(ctx, {
+          type: 'bar',
+          data: chartData,
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 1
+              }
+            }
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+
+    // When a file is selected, validate and preview the image
+    document.getElementById('file-input').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        if (!file.type.startsWith('image/')) {
+          alert("Please select a valid image file.");
+          event.target.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('image-preview').innerHTML = '<img src="' + e.target.result + '" alt="Uploaded Image">';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // When the predict button is clicked, trigger prediction if a file is uploaded
+    document.getElementById('predict-btn').addEventListener('click', function() {
+      const input = document.getElementById('file-input');
+      if (input.files.length === 0) {
+        alert("Please upload an image file before predicting.");
+        return;
+      }
+      predictImage(input.files[0]);
+    });
+
+    // Enables prediction on sample images when clicked
+    document.querySelectorAll('.sample-img').forEach(img => {
+      img.addEventListener('click', function() {
+        const imageUrl = this.src;
+        document.getElementById('image-preview').innerHTML = '<img src="' + imageUrl + '" alt="Sample Image">';
+        fetch(imageUrl)
+          .then(response => response.blob())
+          .then(blob => {
+            const file = new File([blob], "sample.png", { type: blob.type });
+            predictImage(file);
+          })
+          .catch(error => console.error('Error fetching sample image:', error));
+      });
+    });
+  </script>
+</body>
+</html>
