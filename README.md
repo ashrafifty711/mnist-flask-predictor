@@ -57,8 +57,6 @@ mnist_flask/
    http://127.0.0.1:5000/
    ```
 
-   ```
-
 ---
 
 ## 🛠 Error Handling
@@ -69,6 +67,6 @@ If the uploaded file is not an image, it cannot be selected due to input restric
 
 ## 📷 Sample Images
 
-- The web page includes clickable sample MNIST digits (0–9) that users can test without uploading their own images.
+The web page includes clickable sample MNIST digits (0–9) that users can test without uploading their own images.
 
 ---
