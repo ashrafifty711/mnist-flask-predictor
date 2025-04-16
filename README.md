@@ -5,17 +5,13 @@ This is a Flask-based web application that allows users to upload handwritten di
 
 ---
 
-## 🚀 Features
+## Features
 
-- Upload custom digit images for prediction.
-- Preview the uploaded image before submission.
-- Display predicted digit and probability distribution using Chart.js.
-- Select from example MNIST digit images for quick testing.
-- Error handling for invalid or missing file uploads.
+The web application allows users to upload their own digit images for prediction, offering a preview of the selected image before the prediction is processed. It displays the predicted digit along with a probability distribution visualized using Chart.js. Users can also test the model using built-in sample MNIST digit images for convenience. Additionally, the app includes error handling mechanisms to manage invalid or missing file uploads, ensuring a smooth user experience.
 
 ---
 
-## 🧠 Tech Stack
+## Tech Stack
 
 - **Flask (Python)** for backend web server
 - **onnxruntime** for model inference
@@ -24,64 +20,55 @@ This is a Flask-based web application that allows users to upload handwritten di
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 mnist_flask/
 ├── app.py               # Flask backend with ONNX prediction and routing
-├── model/
-│   └── mnist_model.onnx # Pre-trained ONNX model
+├── mnist_cnn.onnx       # Pre-trained ONNX model
+├── environment.yml      # Conda environment file with all required dependencies
 ├── static/
 │   └── samples/         # Sample digit images (0.png to 9.png)
 ├── templates/
 │   └── index.html       # HTML frontend with upload form and sample image display
 ├── README.md            # This file
+
 ```
 
 ---
 
-## ⚙️ How to Run the App
+## How to Run the App
 
-1. **Clone the repository** (if applicable) or download the project folder.
+1. **Clone the repository** or download the project folder.
 
-2. **Create a conda environment** (optional but recommended):
+2. **Create and activate the conda environment** using the provided `environment.yml` file:
    ```bash
-   conda create -n mnist_flask python=3.9
+   conda env create -f environment.yml
    conda activate mnist_flask
    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install flask onnxruntime numpy pillow
-   ```
-
-4. **Run the app**:
+3. **Run the app**:
    ```bash
    python app.py
    ```
 
-5. **Open your browser** and go to:  
+4. **Open your browser** and go to:  
    ```
    http://127.0.0.1:5000/
+   ```
+
    ```
 
 ---
 
 ## 🛠 Error Handling
 
-- If the uploaded file is **not an image**, the app will show a browser alert and not submit the file.
-- If **no file** is uploaded and the predict button is clicked, nothing will happen.
+If the uploaded file is not an image, it cannot be selected due to input restrictions. Additionally, if the predict button is clicked without selecting a file, an error popup will appear prompting the user to upload an image first.
 
 ---
 
 ## 📷 Sample Images
 
 - The web page includes clickable sample MNIST digits (0–9) that users can test without uploading their own images.
-
----
-
-## 📞 Contact
-
-For questions, feel free to reach out to **Md Ashraf Hossain Ifty**.
 
 ---
